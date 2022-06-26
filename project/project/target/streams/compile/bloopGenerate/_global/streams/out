@@ -1,0 +1,4 @@
+[debug] [minimalzio-build-build] Classpath dependencies List()
+[debug] [minimalzio-build-build] Dependencies from configurations List()
+[debug] Bloop wrote the configuration of project 'minimalzio-build-build' to '/home/bauer/workspace/scala/minimalzio/project/project/.bloop/minimalzio-build-build.json'
+[success] Generated .bloop/minimalzio-build-build.json

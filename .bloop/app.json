@@ -1,0 +1,151 @@
+{
+    "version": "1.4.0",
+    "project": {
+        "name": "app",
+        "directory": "/home/bauer/workspace/scala/minimalzio/minimalzio",
+        "workspaceDir": "/home/bauer/workspace/scala/minimalzio",
+        "sources": [
+            "/home/bauer/workspace/scala/minimalzio/minimalzio/src/main/scala",
+            "/home/bauer/workspace/scala/minimalzio/minimalzio/src/main/scala-2.12",
+            "/home/bauer/workspace/scala/minimalzio/minimalzio/src/main/scala-2",
+            "/home/bauer/workspace/scala/minimalzio/minimalzio/src/main/java",
+            "/home/bauer/workspace/scala/minimalzio/minimalzio/target/scala-2.12/src_managed/main"
+        ],
+        "dependencies": [
+            
+        ],
+        "classpath": [
+            "/home/bauer/.sbt/boot/scala-2.12.15/lib/scala-library.jar"
+        ],
+        "out": "/home/bauer/workspace/scala/minimalzio/.bloop/app",
+        "classesDir": "/home/bauer/workspace/scala/minimalzio/.bloop/app/scala-2.12/classes",
+        "resources": [
+            "/home/bauer/workspace/scala/minimalzio/minimalzio/src/main/resources",
+            "/home/bauer/workspace/scala/minimalzio/minimalzio/target/scala-2.12/resource_managed/main"
+        ],
+        "scala": {
+            "organization": "org.scala-lang",
+            "name": "scala-compiler",
+            "version": "2.12.15",
+            "options": [
+                
+            ],
+            "jars": [
+                "/home/bauer/.sbt/boot/scala-2.12.15/lib/scala-library.jar",
+                "/home/bauer/.sbt/boot/scala-2.12.15/lib/scala-compiler.jar",
+                "/home/bauer/.sbt/boot/scala-2.12.15/lib/scala-reflect.jar",
+                "/home/bauer/.sbt/boot/scala-2.12.15/lib/scala-xml_2.12-1.0.6.jar"
+            ],
+            "setup": {
+                "order": "mixed",
+                "addLibraryToBootClasspath": true,
+                "addCompilerToClasspath": false,
+                "addExtraJarsToClasspath": false,
+                "manageBootClasspath": true,
+                "filterLibraryFromClasspath": true
+            }
+        },
+        "java": {
+            "options": [
+                
+            ]
+        },
+        "test": {
+            "frameworks": [
+                {
+                    "names": [
+                        "org.scalacheck.ScalaCheckFramework"
+                    ]
+                },
+                {
+                    "names": [
+                        "org.specs2.runner.Specs2Framework",
+                        "org.specs2.runner.SpecsFramework"
+                    ]
+                },
+                {
+                    "names": [
+                        "org.specs.runner.SpecsFramework"
+                    ]
+                },
+                {
+                    "names": [
+                        "org.scalatest.tools.Framework",
+                        "org.scalatest.tools.ScalaTestFramework"
+                    ]
+                },
+                {
+                    "names": [
+                        "com.novocode.junit.JUnitFramework"
+                    ]
+                },
+                {
+                    "names": [
+                        "munit.Framework"
+                    ]
+                }
+            ],
+            "options": {
+                "excludes": [
+                    
+                ],
+                "arguments": [
+                    
+                ]
+            }
+        },
+        "platform": {
+            "name": "jvm",
+            "config": {
+                "home": "/home/bauer/.sdkman/candidates/java/22.1.0.r17-grl",
+                "options": [
+                    "-Duser.dir=/home/bauer/workspace/scala/minimalzio"
+                ]
+            },
+            "mainClass": [
+                
+            ]
+        },
+        "resolution": {
+            "modules": [
+                {
+                    "organization": "org.scala-lang",
+                    "name": "scala-library",
+                    "version": "2.12.15",
+                    "configurations": "default",
+                    "artifacts": [
+                        {
+                            "name": "scala-library",
+                            "path": "/home/bauer/.sbt/boot/scala-2.12.15/lib/scala-library.jar"
+                        },
+                        {
+                            "name": "scala-library",
+                            "classifier": "sources",
+                            "path": "/home/bauer/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.12.15/scala-library-2.12.15-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.scala-lang",
+                    "name": "scala-library",
+                    "version": "2.12.15",
+                    "configurations": "optional",
+                    "artifacts": [
+                        {
+                            "name": "scala-library",
+                            "path": "/home/bauer/.sbt/boot/scala-2.12.15/lib/scala-library.jar"
+                        },
+                        {
+                            "name": "scala-library",
+                            "classifier": "sources",
+                            "path": "/home/bauer/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.12.15/scala-library-2.12.15-sources.jar"
+                        }
+                    ]
+                }
+            ]
+        },
+        "tags": [
+            "library"
+        ]
+    }
+}

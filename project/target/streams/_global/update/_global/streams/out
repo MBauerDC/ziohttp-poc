@@ -1,0 +1,4 @@
+[debug] not up to date. inChanged = true, force = false
+[debug] Updating ProjectRef(uri("file:/home/bauer/workspace/scala/minimalzio/project/"), "minimalzio-build")...
+[debug] Done updating ProjectRef(uri("file:/home/bauer/workspace/scala/minimalzio/project/"), "minimalzio-build")
+ri("file:/home/bauer/workspace/scala/minimalzio/project/"), "minimalzio-build")[0m

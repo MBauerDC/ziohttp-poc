@@ -1,0 +1,4 @@
+[debug] [minimalzio-test] Classpath dependencies List()
+[debug] [minimalzio-test] Dependencies from configurations List(minimalzio)
+[debug] Bloop wrote the configuration of project 'minimalzio-test' to '/home/bauer/workspace/scala/minimalzio/.bloop/minimalzio-test.json'
+[success] Generated .bloop/minimalzio-test.json

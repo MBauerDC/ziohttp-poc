@@ -1,0 +1,17 @@
+1655680798622:;set _root_.scala.collection.Seq(historyPath := None,shellPrompt := { _ => "" },SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("/tmp/sbt-structure.xml")),SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := "download, resolveClassifiers");apply -cp "/home/bauer/.config/JetBrains/RemoteDev-IU/_home_bauer_workspace_scala_testPrelude/plugins/Scala/repo/org/jetbrains/scala/sbt-structure-extractor_2.12_1.0/2021.3.0/sbt-structure-extractor-2021.3.0.jar" org.jetbrains.sbt.CreateTasks;preferScala2;*/*:dumpStructure
+1655687686021:clean
+1655687688216:reload
+1655687693519:assembly
+1655687844029:clean
+1655687845795:reload
+1655687848582:compile
+1655687859254:assembly
+1655687895408:rm -rf /home/bauer/.cache/coursir
+1655687961701:clean
+1655687963681:compile
+1655687977741:assembly
+1655688162683:reload
+1655688167088:assembly
+1655688306186:clean
+1655688310150:compile
+1655688322026:assembly

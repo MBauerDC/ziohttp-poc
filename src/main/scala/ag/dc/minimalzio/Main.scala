@@ -13,6 +13,7 @@ import java.io.IOException
 
 import ag.dc.minimalzio.middleware.*
 import ag.dc.minimalzio.middleware.DCMiddleware
+import ag.dc.minimalzio.utils.Bootstrap
 
 object Main extends ZIOAppDefault  {
 
@@ -35,15 +36,6 @@ object Main extends ZIOAppDefault  {
   private def getMiddlewares = 
     Middleware.debug ++
     Middleware.addHeader("X-Environment", "Dev")
-
-  val a: PartialFunction[Request, Any] = {
-    case req @ Method.POST -> !! / "fruits" / "a" =>
-    Response.text(req.bodyAsString.getOrElse("No body!"))
-  }
-
-  val method: PartialFunction[Request, Response] = {
-      case Method.GET -> !! / "text" / name => Response.text("Hello World!")
-    }  
 
   private def getApp = 
     Http.collect[Request] {
@@ -78,7 +70,7 @@ object Main extends ZIOAppDefault  {
   val run = getArgs.flatMap { args =>
     val port: Port = getPort(args)
     val nThreads: Int = getNThreads(args)
-    val app = getApp
+    val initialApp = getApp
     val systemLayer: ZLayer[Any, Nothing, Clock & Random & System & Console] = 
       Clock.live ++ Random.live ++ System.live ++ Console.live
 
@@ -86,10 +78,16 @@ object Main extends ZIOAppDefault  {
       for {
         mwRef  <- DCMiddleware.bootstrapMiddlewares
         mw     <- mwRef.get
-        server <- composeServer(port, app, mw)
+        ownApp <- Bootstrap.getBootstrappedApp
+        server <- composeServer(port, initialApp ++ ownApp, mw)
         start  <- server.make
         _      <- logStart(start, nThreads) *> ZIO.never
       } yield ()
-    }.provide(systemLayer, ServerChannelFactory.auto, zhttp.service.EventLoopGroup.auto(nThreads))
+    }.provide(
+      ZLayer.fromZIO(ag.dc.minimalzio.users.Bootstrap.userMapRef), 
+      systemLayer, 
+      ServerChannelFactory.auto, 
+      zhttp.service.EventLoopGroup.auto(nThreads)
+    )
   }
 }

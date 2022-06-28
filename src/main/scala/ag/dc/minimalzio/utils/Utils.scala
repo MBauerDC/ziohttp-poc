@@ -2,6 +2,11 @@ package ag.dc.minimalzio.utils
 
 import java.time.Instant
 import zhttp.http.Request
+import zhttp.http.Status
+import java.nio.charset.Charset
+import zhttp.http.Response
+import zhttp.http.Headers
+import zhttp.http.HttpData
 
 object Utils {
 
@@ -22,6 +27,20 @@ object Utils {
       val lastModifiedByUserName: String
     }
   }
+
+  case class RequestError(status: Status, message: String) extends Throwable {
+    def toResponse(cs: Charset = Charset.defaultCharset()): Response = 
+      Response(status, Headers(), HttpData.fromString(message, cs))
+  }
+  object RequestError {
+    def apply(status: Status, message: String): RequestError =
+      new RequestError(status, message)
+  }
+
+  enum CommonHeaders(name: String):
+    def getName = this.name
+    case CorrelationId extends CommonHeaders("X-Correlation-Id")
+    case SessionId extends CommonHeaders("X-Session-Id")
 
   object HTTPRequest {
     extension (r: Request) def getHeaderValue[O]

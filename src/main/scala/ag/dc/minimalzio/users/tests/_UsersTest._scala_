@@ -1,0 +1,190 @@
+package ag.dc.minimalzio.users.tests
+
+ val ti = DomainEventProjector[User]()
+
+  val userId = UUID.randomUUID
+
+  val userData = User.UserData().copy(
+      id = Some(userId), 
+      name = Some("Max Mustermann"),
+      email = Some("max@mustermann.de"),
+      createdAt = Some(Instant.now),
+      createdByUserName = Some("Michael Bauer"),
+      lastModifiedAt = Some(Instant.now),
+      lastModifiedByUserName = Some("Michael Bauer")
+    )
+
+  val initialEvent = new GenericInitialDomainEvent[User.UserData, Nothing, User](
+    UUID.randomUUID,
+    UUID.randomUUID,
+    Instant.now,
+    "ziodemo",
+    userData,
+    Map(),
+    (User.getClass.getName, userId),
+    "Browser"
+  ) {
+    val prohibitedPropagationTargets = None
+    val propagationAncestors = None
+    def applyPatch(aggregate: User): User = aggregate.copy(
+        id = this.messageData.id.getOrElse(aggregate.id),
+        name = this.messageData.name.getOrElse(aggregate.name),
+        email = this.messageData.email.getOrElse(aggregate.email),
+        createdAt = this.messageData.createdAt.getOrElse(aggregate.createdAt),
+        createdByUserName = this.messageData.createdByUserName.getOrElse(aggregate.createdByUserName),
+        lastModifiedAt = this.messageData.lastModifiedAt.getOrElse(aggregate.lastModifiedAt),
+        lastModifiedByUserName = this.messageData.lastModifiedByUserName.getOrElse(aggregate.lastModifiedByUserName)
+    )
+  }
+
+  val gen = 
+    (i: InitialDomainEvent[User.UserData, ?, User]) =>
+        User(
+          i.messageData.id.get,
+          i.messageData.name.get,
+          i.messageData.email.get,
+          i.messageData.createdAt.get,
+          i.messageData.createdByUserName.get,
+          i.messageData.lastModifiedAt.get,
+          i.messageData.lastModifiedByUserName.get
+        )
+    
+  val mappedUser = 
+    ti.projectEvents(
+      gen, 
+      (initialEvent, List[CQRS.DomainEvent[UUID | String | Instant, Nothing,User]]())
+      )
+  println(s"mapped user: $mappedUser")
+  println(s"event: $initialEvent")
+
+  val nameEvent = new CQRS.GenericDomainEvent[User.UserData, Nothing, User](
+    UUID.randomUUID,
+    UUID.randomUUID,
+    Instant.now,
+    "ziodemo",
+    User.UserData().copy(name = Some("Gabriele Musterfrau")),
+    Map(),
+    (User.getClass.getName, userId),
+    "Browser"
+  ) {
+    val prohibitedPropagationTargets = None
+    val propagationAncestors = None
+    def applyPatch(aggregate: User): User = aggregate.copy(
+        name = this.messageData.name.get,
+    )
+  }
+
+  val changedUser = ti.projectEvents(mappedUser, List(nameEvent))
+  println(s"$changedUser")
+
+  class GenericCommandFactory(
+    val registeredCommands: List[PartialFunction[Request, ZIO[Any, Throwable, Command[?, ?]]]] = List()
+  ) extends CommandFactory {
+    // OR the individual PartialFunctions, then lift to a total function to Option
+    val composedFactories = registeredCommands.reduce((a, b) => a.orElse(b)).lift
+    def registerCommands[C <: Command[?, ?]](pfs: List[PartialFunction[Request, ZIO[Any, Throwable, C]]]):  GenericCommandFactory = 
+      new GenericCommandFactory(registeredCommands.appendedAll(pfs))
+    def requestToCommand(req: Request) : Option[ZIO[Any, Throwable, Command[?, ?]]] =
+      composedFactories(req)
+  }
+
+  class GenericQueryFactory(
+    val registeredQueries: List[PartialFunction[Request, ZIO[Any, Throwable, Query[?, ?]]]] = List()
+  ) extends QueryFactory {
+    val composedFactories = registeredQueries.reduce((a, b) => a.orElse(b)).lift
+    def registerQueries[Q <: Query[?, ?]](pfs: List[PartialFunction[Request, ZIO[Any, Throwable, Q]]]):  GenericQueryFactory = 
+      new GenericQueryFactory(registeredQueries.appendedAll(pfs))
+    def requestToQuery(req: Request) : Option[ZIO[Any, Throwable, Query[?, ?]]] =
+      composedFactories(req)
+  }
+
+  case class CreateUser[M <: Serializable](
+    user: CreationUser,
+    targetLocator: (Method, URL),
+    headers: zhttp.http.Headers, 
+    correlationId: UUID,
+    issuer: String,
+    messageId: UUID = UUID.randomUUID(), 
+    createdAt: Instant = Instant.now(),
+    metadata: Map[String, M] = Map()
+  ) extends Command[CreationUser, M] {
+    val headerData: Some[zhttp.http.Headers] = Some(headers)
+    val messageData = user
+  }
+  object CreateUser {
+    def fromRequestPartialZIO: PartialFunction[Request, ZIO[Any, Throwable, Either[RequestError, CreateUser[?]]]] = {
+      case req@(Method.POST -> !! / "users") => {
+        req.bodyAsString.flatMap(bodyString => 
+          val jsonErrOrCreateUser = 
+            CreationUser.given_JsonDecoder_CreationUser.decodeJson(bodyString)
+          ZIO.succeed(
+            jsonErrOrCreateUser match {
+              case Left(err) => Left(RequestError(Status.BadRequest, s"Invalid Json: $err"))
+              case Right(user) => Right(
+                CreateUser(
+                  user = user,
+                  targetLocator = (req.method, req.url),
+                  headers = req.headers,
+                  correlationId = 
+                    req.headerValue(CommonHeaders.CorrelationId.getName)
+                    .flatMap( str => Try(UUID.fromString(str)).toOption)
+                    .getOrElse(UUID.randomUUID()),
+                  issuer = req.userAgent.map(_.toString).getOrElse("Browser")
+                )
+              )
+            }
+          )   
+        )
+      }
+    }
+  }
+
+  case class ChangeUserDataById[M <: Serializable](
+    id: UUID,
+    user: ModificationUser,
+    targetLocator: (Method, URL),
+    headers: zhttp.http.Headers, 
+    correlationId: UUID,
+    issuer: String,
+    messageId: UUID = UUID.randomUUID(), 
+    createdAt: Instant = Instant.now(),
+    metadata: Map[String, M] = Map()
+  ) extends Command[ModificationUser, M] {
+    val headerData: Some[zhttp.http.Headers] = Some(headers)
+    val messageData = user
+  }
+  object ChangeUserDataById {
+    def fromRequestPartialZIO: PartialFunction[Request, ZIO[Any, Throwable, Either[RequestError, ChangeUserDataById[?]]]] = {
+      case req@(Method.PATCH -> !! / "users" / userId) if (Try(UUID.fromString(userId)).isSuccess) => {
+        req.bodyAsString.flatMap(bodyString => 
+          val errOrModificationUser = 
+            ModificationUser.given_JsonDecoder_ModificationUser.decodeJson(bodyString)
+          ZIO.succeed(  
+            errOrModificationUser match {
+              case Left(err) => Left(RequestError(Status.BadRequest, s"Invalid JSON: $err"))
+              case Right(user) => 
+                Right(
+                  ChangeUserDataById(
+                    id = UUID.fromString(userId),
+                    user = user,
+                    targetLocator = (req.method, req.url),
+                    headers = req.headers, 
+                    correlationId = 
+                      req.headerValue(CommonHeaders.CorrelationId.getName)
+                      .flatMap( str => Try(UUID.fromString(str)).toOption)
+                      .getOrElse(UUID.randomUUID()),
+                    issuer = req.userAgent.map(_.toString).getOrElse("Browser"),
+                  )
+                )
+            }
+          )
+        )
+      }
+    }
+  }
+
+  val commandFactory = 
+    (new CommandFactory())
+    .registerCommands(
+      List(CreateUser.fromRequestPartialZIO, ChangeUserDataById.fromRequestPartialZIO)
+    )
